@@ -404,6 +404,78 @@ func TestTree_Insert_big_case(t1 *testing.T) {
 	checkNodeProperties(t1, t.root.left.right.left, 4, red, "t.root.left.right.left")
 }
 
+func TestTree_Delete(t1 *testing.T) {
+	type args[V constraints.Ordered] struct {
+		key V
+	}
+	type testCase[V constraints.Ordered] struct {
+		name string
+		t    *Tree[V]
+		args args[V]
+		want *Tree[V]
+	}
+
+	treeWithOneElement := New[int]()
+	treeWithOneElement.Insert(15, 15)
+	treeWithOneElement.Insert(25, 25)
+
+	treeWithTwoElements := New[int]()
+	treeWithTwoElements.Insert(15, 15)
+	treeWithTwoElements.Insert(25, 25)
+	treeWithTwoElements.Insert(35, 35)
+
+	treeResult := New[int]()
+	treeResult.Insert(15, 15)
+	treeResult.Insert(35, 35)
+
+	tests := []testCase[int]{
+		{
+			name: "empty tree",
+			t:    &Tree[int]{},
+			args: args[int]{key: 1},
+			want: &Tree[int]{},
+		},
+		{
+			name: "tree only with root - without changes",
+			t:    getTree([]int{15}),
+			args: args[int]{key: 1},
+			want: getTree([]int{15}),
+		},
+		{
+			name: "tree only with root - delete root",
+			t:    getTree([]int{15}),
+			args: args[int]{key: 15},
+			want: &Tree[int]{},
+		},
+		{
+			name: "tree with elements - without changes",
+			t:    getTree([]int{15, 25}),
+			args: args[int]{key: 85},
+			want: getTree([]int{15, 25}),
+		},
+		{
+			name: "tree with elements - delete node without children",
+			t:    getTree([]int{15, 25}),
+			args: args[int]{key: 25},
+			want: getTree([]int{15}),
+		},
+		{
+			name: "tree with elements - delete node with right children",
+			t:    getTree([]int{15, 25, 35}),
+			args: args[int]{key: 25},
+			want: getTree([]int{35, 15}),
+		},
+	}
+	for _, tt := range tests {
+		t1.Run(tt.name, func(t1 *testing.T) {
+			tt.t.Delete(tt.args.key)
+			if !reflect.DeepEqual(tt.t, tt.want) {
+				t1.Errorf("Delete() = %v, want %v", tt.t, tt.want)
+			}
+		})
+	}
+}
+
 func checkNodeProperties(t *testing.T, node *node[int], key int, color color, errMsg string) {
 	if node == nil {
 		return

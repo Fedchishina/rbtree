@@ -41,24 +41,14 @@ func (n *node[V]) hasNoChildren() bool {
 	return n.left == nil && n.right == nil
 }
 
-func rightRotate[V constraints.Ordered](root, y *node[V]) {
-	x := y.left
-	y.left = x.right
-
-	if x.right != nil {
-		x.right.parent = y
+func (n *node[V]) min() *node[V] {
+	if n == nil {
+		return nil
 	}
 
-	x.parent = y.parent
-
-	if y.parent == nil {
-		root = x
-	} else if y == y.parent.right {
-		y.parent.right = x
-	} else {
-		y.parent.left = x
+	for n.left != nil {
+		n = n.left
 	}
 
-	x.right = y
-	y.parent = x
+	return n
 }

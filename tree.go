@@ -124,6 +124,26 @@ func (t *Tree[V]) GetValue(key V) (any, error) {
 	return searchNode.element.value, nil
 }
 
+// Delete is a function for deleting node in rbtree
+// - param key should be `ordered type` (`int`, `string`, `float` etc)
+func (t *Tree[V]) Delete(key V) {
+	z := search(t.root, key)
+	if z == nil {
+		return
+	}
+
+	if t.root.hasNoChildren() {
+		t.root = nil
+		return
+	}
+
+	yOriginalColor, x := t.deleteNode(z)
+
+	if yOriginalColor == black {
+		t.deleteFixup(x)
+	}
+}
+
 // leftRotate - internal function for left rotating in rbtree
 func (t *Tree[V]) leftRotate(x *node[V]) {
 	if x == nil || x.right == nil {
@@ -228,6 +248,9 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 func (t *Tree[V]) transplant(u, v *node[V]) {
 	if u.parent == nil {
 		t.root = v
+		if v != nil {
+			v.parent = nil
+		}
 
 		return
 	}
@@ -240,5 +263,93 @@ func (t *Tree[V]) transplant(u, v *node[V]) {
 	}
 
 	u.parent.right = v
-	v.parent = u.parent
+
+	if v != nil {
+		v.parent = u.parent
+	}
+}
+
+// deleteNode - internal function for deleting node in rbtree
+func (t *Tree[V]) deleteNode(z *node[V]) (color, *node[V]) {
+	var yOriginalColor color
+	y := z
+	yOriginalColor = y.color
+
+	var x *node[V]
+
+	if z.left == nil {
+		x = z.right
+		t.transplant(z, z.right)
+	} else if z.right == nil {
+		x = z.left
+		t.transplant(z, z.left)
+	} else {
+		y = z.right.min()
+		yOriginalColor = y.color
+		x = y.right
+
+		if y.parent != z {
+			t.transplant(y, y.right)
+			y.right = z.right
+			y.right.parent = y
+		}
+		t.transplant(z, y)
+		y.left = z.left
+		y.left.parent = y
+		y.color = z.color
+	}
+
+	return yOriginalColor, x
+}
+
+func (t *Tree[V]) deleteFixup(x *node[V]) {
+	var w *node[V]
+	for x != t.root && x.color == black {
+		if x == x.parent.left {
+			w = x.parent.right
+			if w.color == red {
+				w.color = black
+				x.parent.color = red
+				t.leftRotate(x.parent)
+				w = x.parent.right
+			}
+			if w.left.color == black && w.right.color == black {
+				w.color = red
+				x = x.parent
+			} else if w.right.color == black {
+				w.left.color = black
+				w.color = red
+				t.rightRotate(w)
+				w = x.parent.right
+			}
+			w.color = x.parent.color
+			x.parent.color = black
+			w.right.color = black
+			t.leftRotate(x.parent)
+			x = t.root
+		} else {
+			w = x.parent.left
+			if w.color == red {
+				w.color = black
+				x.parent.color = red
+				t.rightRotate(x.parent)
+				w = x.parent.left
+			}
+			if w.right.color == black && w.left.color == black {
+				w.color = red
+				x = x.parent
+			} else if w.left.color == black {
+				w.right.color = black
+				w.color = red
+				t.leftRotate(w)
+				w = x.parent.left
+			}
+			w.color = x.parent.color
+			x.parent.color = black
+			w.left.color = black
+			t.rightRotate(x.parent)
+			x = t.root
+		}
+	}
+	x.color = black
 }

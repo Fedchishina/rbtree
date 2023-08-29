@@ -13,6 +13,7 @@ You can create a Red-black tree and use a list of functions to work with it.
 - [Get value by key element](#get-value-by-key-element)
 - [Min tree element](#min-tree-element)
 - [Max tree element](#max-tree-element)
+- [Delete node from node](#delete-node-from-node)
 
 
 ### Empty tree's creation example
@@ -78,4 +79,13 @@ t.Insert(8, 8)
 t.Insert(4, 4)
 
 result := t.Max() // 22
+```
+### Delete element by key from tree
+```
+t := tree.New[int]()
+t.Insert(22, 22) 
+t.Insert(8, 8)
+t.Insert(4, 4)
+
+err := t.Delete(22) // without err
 ```
