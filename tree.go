@@ -190,32 +190,33 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 				y.color = black
 				z.parent.parent.color = red
 				z = z.parent.parent
-			} else {
-				if z == z.parent.right {
-					z = z.parent
-					t.leftRotate(z)
-				}
-				z.parent.color = black
-				z.parent.parent.color = red
-				t.rightRotate(z.parent.parent)
+				continue
 			}
-		} else {
-			y := z.parent.parent.left
-			if y != nil && y.color == red {
-				z.parent.color = black
-				y.color = black
-				z.parent.parent.color = red
-				z = z.parent.parent
-			} else {
-				if z == z.parent.left {
-					z = z.parent
-					t.rightRotate(z)
-				}
-				z.parent.color = black
-				z.parent.parent.color = red
-				t.leftRotate(z.parent.parent)
+			if z == z.parent.right {
+				z = z.parent
+				t.leftRotate(z)
 			}
+			z.parent.color = black
+			z.parent.parent.color = red
+			t.rightRotate(z.parent.parent)
+			continue
 		}
+		y := z.parent.parent.left
+		if y != nil && y.color == red {
+			z.parent.color = black
+			y.color = black
+			z.parent.parent.color = red
+			z = z.parent.parent
+			continue
+		}
+
+		if z == z.parent.left {
+			z = z.parent
+			t.rightRotate(z)
+		}
+		z.parent.color = black
+		z.parent.parent.color = red
+		t.leftRotate(z.parent.parent)
 	}
 	t.root.color = black
 }
