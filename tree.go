@@ -124,6 +124,7 @@ func (t *Tree[V]) GetValue(key V) (any, error) {
 	return searchNode.element.value, nil
 }
 
+// leftRotate - internal function for left rotating in rbtree
 func (t *Tree[V]) leftRotate(x *node[V]) {
 	if x == nil || x.right == nil {
 		return
@@ -155,6 +156,7 @@ func (t *Tree[V]) leftRotate(x *node[V]) {
 	x.parent = y
 }
 
+// rightRotate - internal function for right rotating in rbtree
 func (t *Tree[V]) rightRotate(y *node[V]) {
 	if y == nil || y.left == nil {
 		return
@@ -181,6 +183,7 @@ func (t *Tree[V]) rightRotate(y *node[V]) {
 	y.parent = x
 }
 
+// insertFixup function calls after insert node to rbtree for recovery of rbtree's properties
 func (t *Tree[V]) insertFixup(z *node[V]) {
 	for z.parent != nil && z.parent.color == red {
 		if z.parent == z.parent.parent.left {
@@ -219,4 +222,23 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 		t.leftRotate(z.parent.parent)
 	}
 	t.root.color = black
+}
+
+// transplant - internal function for substitution u node to v node
+func (t *Tree[V]) transplant(u, v *node[V]) {
+	if u.parent == nil {
+		t.root = v
+
+		return
+	}
+
+	if u == u.parent.left {
+		u.parent.left = v
+		v.parent = u.parent
+
+		return
+	}
+
+	u.parent.right = v
+	v.parent = u.parent
 }
