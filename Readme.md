@@ -1,4 +1,4 @@
-redblacktree
+rbtree
 =======================
 
 Library for work with Red-black trees.
