@@ -346,7 +346,7 @@ func TestTree_Insert(t1 *testing.T) {
 
 	tests := []testCase[int]{
 		{
-			name: "empty tree",
+			name: "case 1: insert root",
 			t:    &Tree[int]{},
 			args: args[int]{key: 15, value: 15},
 			want: &Tree[int]{
@@ -360,7 +360,7 @@ func TestTree_Insert(t1 *testing.T) {
 			},
 		},
 		{
-			name: "tree with root and one element",
+			name: "case 2 - insert node to black root",
 			t:    getTree([]int{15}),
 			args: args[int]{key: 25, value: 25},
 			want: &treeWithOneElement,
@@ -374,6 +374,42 @@ func TestTree_Insert(t1 *testing.T) {
 			}
 		})
 	}
+}
+
+func TestTree_Insert_case_3_left_side(t1 *testing.T) {
+	t := getTree([]int{5, 3, 6})
+
+	// check tree's structure and colours before insert
+	checkNodeProperties(t1, t.root, 5, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 3, red, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 6, red, "t.root.right")
+
+	// add list
+	t.Insert(2, 2)
+
+	// check tree's structure and colours after insert
+	checkNodeProperties(t1, t.root, 5, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 3, black, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 6, black, "t.root.right")
+	checkNodeProperties(t1, t.root.left.left, 2, red, "t.root.left")
+}
+
+func TestTree_Insert_case_3_right_side(t1 *testing.T) {
+	t := getTree([]int{5, 3, 6})
+
+	// check tree's structure and colours before insert
+	checkNodeProperties(t1, t.root, 5, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 3, red, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 6, red, "t.root.right")
+
+	// add list
+	t.Insert(4, 4)
+
+	// check tree's structure and colours after insert
+	checkNodeProperties(t1, t.root, 5, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 3, black, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 6, black, "t.root.right")
+	checkNodeProperties(t1, t.root.left.right, 4, red, "t.root.left")
 }
 
 func TestTree_Insert_big_case(t1 *testing.T) {

@@ -224,6 +224,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 			t.rightRotate(z.parent.parent)
 			continue
 		}
+
 		y := z.parent.parent.left
 		if y != nil && y.color == red {
 			z.parent.color = black
