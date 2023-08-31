@@ -44,7 +44,7 @@ func (t *Tree[V]) Insert(key V, value any) {
 
 	if t.root == nil {
 		t.root = newNode
-		t.root.color = black
+		t.insertFixup(newNode)
 
 		return
 	}

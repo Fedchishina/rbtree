@@ -376,7 +376,29 @@ func TestTree_Insert(t1 *testing.T) {
 	}
 }
 
-func TestTree_Insert_case_3_left_side(t1 *testing.T) {
+func TestTree_Insert_case_2(t1 *testing.T) {
+	t := getTree([]int{11, 9, 18, 8, 10})
+
+	// check tree's structure and colours before insert
+	checkNodeProperties(t1, t.root, 11, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 9, black, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 18, black, "t.root.right")
+	checkNodeProperties(t1, t.root.left.left, 8, red, "t.root.left.left")
+	checkNodeProperties(t1, t.root.left.right, 10, red, "t.root.left.right")
+
+	// add list
+	t.Insert(7, 7)
+
+	// check tree's structure and colours after insert
+	checkNodeProperties(t1, t.root, 11, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 9, red, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 18, black, "t.root.right")
+	checkNodeProperties(t1, t.root.left.left, 8, black, "t.root.left.left")
+	checkNodeProperties(t1, t.root.left.right, 10, black, "t.root.left.right")
+	checkNodeProperties(t1, t.root.left.left.right, 7, red, "t.root.left.left")
+}
+
+func TestTree_Insert_case_3(t1 *testing.T) {
 	t := getTree([]int{5, 3, 6})
 
 	// check tree's structure and colours before insert
@@ -392,24 +414,54 @@ func TestTree_Insert_case_3_left_side(t1 *testing.T) {
 	checkNodeProperties(t1, t.root.left, 3, black, "t.root.left")
 	checkNodeProperties(t1, t.root.right, 6, black, "t.root.right")
 	checkNodeProperties(t1, t.root.left.left, 2, red, "t.root.left")
-}
 
-func TestTree_Insert_case_3_right_side(t1 *testing.T) {
-	t := getTree([]int{5, 3, 6})
+	t2 := getTree([]int{5, 3, 6})
 
 	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t.root, 5, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 3, red, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 6, red, "t.root.right")
+	checkNodeProperties(t1, t2.root, 5, black, "t.root")
+	checkNodeProperties(t1, t2.root.left, 3, red, "t.root.left")
+	checkNodeProperties(t1, t2.root.right, 6, red, "t.root.right")
 
 	// add list
-	t.Insert(4, 4)
+	t2.Insert(4, 4)
 
 	// check tree's structure and colours after insert
-	checkNodeProperties(t1, t.root, 5, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 3, black, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 6, black, "t.root.right")
-	checkNodeProperties(t1, t.root.left.right, 4, red, "t.root.left")
+	checkNodeProperties(t1, t2.root, 5, black, "t.root")
+	checkNodeProperties(t1, t2.root.left, 3, black, "t.root.left")
+	checkNodeProperties(t1, t2.root.right, 6, black, "t.root.right")
+	checkNodeProperties(t1, t2.root.left.right, 4, red, "t.root.left")
+}
+
+func TestTree_Insert_case_4_left_rotate(t1 *testing.T) {
+	t := getTree([]int{8, 6})
+
+	// check tree's structure and colours before insert
+	checkNodeProperties(t1, t.root, 8, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 6, red, "t.root.left")
+
+	// add list
+	t.Insert(7, 7)
+
+	// check tree's structure and colours after insert
+	checkNodeProperties(t1, t.root, 7, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 6, red, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 8, red, "t.root.right")
+}
+
+func TestTree_Insert_case_5_right_rotate(t1 *testing.T) {
+	t := getTree([]int{8, 7})
+
+	// check tree's structure and colours before insert
+	checkNodeProperties(t1, t.root, 8, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 7, red, "t.root.left")
+
+	// add list
+	t.Insert(6, 6)
+
+	// check tree's structure and colours after insert
+	checkNodeProperties(t1, t.root, 7, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 6, red, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 8, red, "t.root.right")
 }
 
 func TestTree_Insert_big_case(t1 *testing.T) {
@@ -518,7 +570,7 @@ func checkNodeProperties(t *testing.T, node *node[int], key int, color color, er
 	}
 
 	if node.element.key != key || node.color != color {
-		t.Errorf("Error - Want key: %v, have key %v. Want color: %v, have color: %v in %s",
+		t.Errorf("Error - Want key: %v, have key %v. Want color: %v, have color: %v in %s\n",
 			key,
 			node.element.key,
 			color,
