@@ -548,8 +548,8 @@ func TestTree_Delete(t1 *testing.T) {
 			want: getTree([]int{15}),
 		},
 		{
-			name: "tree with elements - delete node with right children",
-			t:    getTree([]int{15, 25, 35}),
+			name: "delete root with left and right node",
+			t:    getTree([]int{25, 15, 35}),
 			args: args[int]{key: 25},
 			want: getTree([]int{35, 15}),
 		},
@@ -564,7 +564,64 @@ func TestTree_Delete(t1 *testing.T) {
 	}
 }
 
-func checkNodeProperties(t *testing.T, node *node[int], key int, color color, errMsg string) {
+func TestTree_Delete_red_list(t1 *testing.T) {
+	t := getTree([]int{10, 7, 11, 8})
+
+	// check tree's structure and colours before insert
+	checkNodeProperties(t1, t.root, 10, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 7, black, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 11, black, "t.root.right")
+	checkNodeProperties(t1, t.root.left.right, 8, red, "t.root.left.right")
+
+	// delete list
+	t.Delete(8)
+
+	// check tree's structure and colours after deleting
+	checkNodeProperties(t1, t.root, 10, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 7, black, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 11, black, "t.root.right")
+	checkNodeIsNil(t1, t.root.left.right, "t.root.left.right")
+}
+
+func TestTree_Delete_black_node_with_one_child(t1 *testing.T) {
+	t := getTree([]int{10, 7, 11, 8})
+
+	// check tree's structure and colours before insert
+	checkNodeProperties(t1, t.root, 10, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 7, black, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 11, black, "t.root.right")
+	checkNodeProperties(t1, t.root.left.right, 8, red, "t.root.left.right")
+
+	// delete list
+	t.Delete(7)
+
+	// check tree's structure and colours after deleting
+	checkNodeProperties(t1, t.root, 10, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 8, black, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 11, black, "t.root.right")
+}
+
+func TestTree_Delete_case_1(t1 *testing.T) {
+	t := getTree([]int{10, 8, 12, 11, 14})
+
+	// check tree's structure and colours before insert
+	checkNodeProperties(t1, t.root, 10, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 8, black, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 12, black, "t.root.right")
+	checkNodeProperties(t1, t.root.right.left, 11, red, "t.root.right.left")
+	checkNodeProperties(t1, t.root.right.right, 14, red, "t.root.right.right")
+
+	// delete list
+	t.Delete(8)
+
+	// check tree's structure and colours after deleting
+	checkNodeProperties(t1, t.root, 12, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 10, black, "t.root.left")
+	checkNodeProperties(t1, t.root.left.right, 11, red, "t.root.left.right")
+	checkNodeProperties(t1, t.root.right, 14, black, "t.root.right")
+}
+
+func checkNodeProperties(t *testing.T, node *node[int], key int, color color, nodePath string) {
 	if node == nil {
 		return
 	}
@@ -575,8 +632,14 @@ func checkNodeProperties(t *testing.T, node *node[int], key int, color color, er
 			node.element.key,
 			color,
 			node.color,
-			errMsg,
+			nodePath,
 		)
+	}
+}
+
+func checkNodeIsNil(t *testing.T, node *node[int], nodePath string) {
+	if node != nil {
+		t.Errorf("Error - Node is not null in %s\n", nodePath)
 	}
 }
 

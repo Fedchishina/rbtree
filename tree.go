@@ -258,7 +258,9 @@ func (t *Tree[V]) transplant(u, v *node[V]) {
 
 	if u == u.parent.left {
 		u.parent.left = v
-		v.parent = u.parent
+		if v != nil {
+			v.parent = u.parent
+		}
 
 		return
 	}
@@ -289,11 +291,16 @@ func (t *Tree[V]) deleteNode(z *node[V]) (color, *node[V]) {
 		yOriginalColor = y.color
 		x = y.right
 
-		if y.parent != z {
+		if y.parent == z {
+			if x != nil {
+				x.parent = y
+			}
+		} else {
 			t.transplant(y, y.right)
 			y.right = z.right
 			y.right.parent = y
 		}
+
 		t.transplant(z, y)
 		y.left = z.left
 		y.left.parent = y

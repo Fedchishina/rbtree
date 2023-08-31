@@ -13,7 +13,7 @@ You can create a Red-black tree and use a list of functions to work with it.
 - [Get value by key element](#get-value-by-key-element)
 - [Min tree element](#min-tree-element)
 - [Max tree element](#max-tree-element)
-- [Delete node from node](#delete-node-from-node)
+- [Delete element by key from tree](#delete-element-by-key-from-tree)
 
 
 ### Empty tree's creation example

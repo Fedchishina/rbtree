@@ -42,10 +42,6 @@ func (n *node[V]) hasNoChildren() bool {
 }
 
 func (n *node[V]) min() *node[V] {
-	if n == nil {
-		return nil
-	}
-
 	for n.left != nil {
 		n = n.left
 	}
