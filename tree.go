@@ -158,17 +158,12 @@ func (t *Tree[V]) leftRotate(x *node[V]) {
 	}
 
 	y.parent = x.parent
-	if x.parent == nil {
+	switch {
+	case x.parent == nil:
 		t.root = y
-		y.left = x
-		x.parent = y
-
-		return
-	}
-
-	if x == x.parent.left {
+	case x == x.parent.left:
 		x.parent.left = y
-	} else {
+	case x == x.parent.right:
 		x.parent.right = y
 	}
 
@@ -191,11 +186,12 @@ func (t *Tree[V]) rightRotate(y *node[V]) {
 
 	x.parent = y.parent
 
-	if y.parent == nil {
+	switch {
+	case y.parent == nil:
 		t.root = x
-	} else if y == y.parent.right {
+	case y == y.parent.right:
 		y.parent.right = x
-	} else {
+	case y == y.parent.left:
 		y.parent.left = x
 	}
 
@@ -266,7 +262,6 @@ func (t *Tree[V]) transplant(u, v *node[V]) {
 	}
 
 	u.parent.right = v
-
 	if v != nil {
 		v.parent = u.parent
 	}
