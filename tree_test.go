@@ -503,19 +503,6 @@ func TestTree_Delete(t1 *testing.T) {
 		want *Tree[V]
 	}
 
-	treeWithOneElement := New[int]()
-	treeWithOneElement.Insert(15, 15)
-	treeWithOneElement.Insert(25, 25)
-
-	treeWithTwoElements := New[int]()
-	treeWithTwoElements.Insert(15, 15)
-	treeWithTwoElements.Insert(25, 25)
-	treeWithTwoElements.Insert(35, 35)
-
-	treeResult := New[int]()
-	treeResult.Insert(15, 15)
-	treeResult.Insert(35, 35)
-
 	tests := []testCase[int]{
 		{
 			name: "empty tree",
@@ -564,7 +551,7 @@ func TestTree_Delete(t1 *testing.T) {
 	}
 }
 
-func TestTree_Delete_red_list(t1 *testing.T) {
+func TestTree_Delete_case_1_delete_red_list(t1 *testing.T) {
 	t := getTree([]int{10, 7, 11, 8})
 
 	// check tree's structure and colours before insert
@@ -583,7 +570,7 @@ func TestTree_Delete_red_list(t1 *testing.T) {
 	checkNodeIsNil(t1, t.root.left.right, "t.root.left.right")
 }
 
-func TestTree_Delete_black_node_with_one_child(t1 *testing.T) {
+func TestTree_Delete_case_3_delete_black_node_with_one_red_child(t1 *testing.T) {
 	t := getTree([]int{10, 7, 11, 8})
 
 	// check tree's structure and colours before insert
@@ -601,59 +588,25 @@ func TestTree_Delete_black_node_with_one_child(t1 *testing.T) {
 	checkNodeProperties(t1, t.root.right, 11, black, "t.root.right")
 }
 
-//func TestTree_Delete_case_1(t1 *testing.T) {
-//	t := getTree([]int{10, 8, 12, 11, 14})
-//
-//	// check tree's structure and colours before insert
-//	checkNodeProperties(t1, t.root, 10, black, "t.root")
-//	checkNodeProperties(t1, t.root.left, 8, black, "t.root.left")
-//	checkNodeProperties(t1, t.root.right, 12, black, "t.root.right")
-//	checkNodeProperties(t1, t.root.right.left, 11, red, "t.root.right.left")
-//	checkNodeProperties(t1, t.root.right.right, 14, red, "t.root.right.right")
-//
-//	// delete list
-//	t.Delete(8)
-//
-//	// check tree's structure and colours after deleting
-//	checkNodeProperties(t1, t.root, 12, black, "t.root")
-//	checkNodeProperties(t1, t.root.left, 10, black, "t.root.left")
-//	checkNodeProperties(t1, t.root.left.right, 11, red, "t.root.left.right")
-//	checkNodeProperties(t1, t.root.right, 14, black, "t.root.right")
-//}
-
-func TestTree_Delete_case_3(t1 *testing.T) {
-	t := getTree([]int{10, 8, 12})
+func TestTree_Delete_case_2(t1 *testing.T) {
+	t := getTree([]int{10, 8, 12, 11, 14})
 
 	// check tree's structure and colours before insert
 	checkNodeProperties(t1, t.root, 10, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 8, red, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 12, red, "t.root.right")
+	checkNodeProperties(t1, t.root.left, 8, black, "t.root.left")
+	checkNodeProperties(t1, t.root.right, 12, black, "t.root.right")
+	checkNodeProperties(t1, t.root.right.left, 11, red, "t.root.right.left")
+	checkNodeProperties(t1, t.root.right.right, 14, red, "t.root.right.right")
 
 	// delete list
 	t.Delete(8)
 
 	// check tree's structure and colours after deleting
-	checkNodeProperties(t1, t.root, 10, black, "t.root")
-	checkNodeProperties(t1, t.root.right, 12, red, "t.root.right")
+	checkNodeProperties(t1, t.root, 12, black, "t.root")
+	checkNodeProperties(t1, t.root.left, 10, black, "t.root.left")
+	checkNodeProperties(t1, t.root.left.right, 11, red, "t.root.left.right")
+	checkNodeProperties(t1, t.root.right, 14, black, "t.root.right")
 }
-
-//func TestTree_Delete_case_4(t1 *testing.T) {
-//	t := getTree([]int{10, 8, 12})
-//	t.root.left.color = black
-//	t.root.right.color = black
-//
-//	// check tree's structure and colours before insert
-//	checkNodeProperties(t1, t.root, 10, black, "t.root")
-//	checkNodeProperties(t1, t.root.left, 8, black, "t.root.left")
-//	checkNodeProperties(t1, t.root.right, 12, black, "t.root.right")
-//
-//	// delete list
-//	t.Delete(8)
-//
-//	// check tree's structure and colours after deleting
-//	checkNodeProperties(t1, t.root, 10, black, "t.root")
-//	checkNodeProperties(t1, t.root.right, 12, red, "t.root.right")
-//}
 
 func checkNodeProperties(t *testing.T, node *node[int], key int, color color, nodePath string) {
 	if node == nil {
