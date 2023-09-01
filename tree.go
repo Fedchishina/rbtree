@@ -279,33 +279,29 @@ func (t *Tree[V]) deleteNode(z *node[V]) (color, *node[V]) {
 	yOriginalColor = y.color
 
 	var x *node[V]
-
 	if z.left == nil {
 		x = z.right
 		t.transplant(z, z.right)
-	} else if z.right == nil {
+		return yOriginalColor, x
+	}
+
+	if z.right == nil {
 		x = z.left
 		t.transplant(z, z.left)
-	} else {
-		y = z.right.min()
-		yOriginalColor = y.color
-		x = y.right
-
-		if y.parent == z {
-			if x != nil {
-				x.parent = y
-			}
-		} else {
-			t.transplant(y, y.right)
-			y.right = z.right
-			y.right.parent = y
-		}
-
-		t.transplant(z, y)
-		y.left = z.left
-		y.left.parent = y
-		y.color = z.color
+		return yOriginalColor, x
 	}
+
+	y = z.right.min()
+	yOriginalColor = y.color
+	x = y.right
+	z.element = y.element
+
+	if y.parent == z {
+		y.parent.right = nil
+	} else {
+		y.parent.left = nil
+	}
+	y.parent = nil
 
 	return yOriginalColor, x
 }
