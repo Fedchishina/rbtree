@@ -8,26 +8,42 @@ import (
 )
 
 type Tree[V constraints.Ordered] struct {
-	root *node[V]
+	root    *node[V]
+	nilNode *node[V]
 }
 
 // New is a function for creation empty tree
 // - param should be `ordered type` (`int`, `string`, `float` etc)
 func New[V constraints.Ordered]() *Tree[V] {
-	return &Tree[V]{}
+	nilNode := &node[V]{
+		color: black,
+	}
+
+	return &Tree[V]{
+		root:    nilNode,
+		nilNode: nilNode,
+	}
 }
 
 // NewWithElement is a function for creation tree with one element
 // - param should be `ordered type` (`int`, `string`, `float` etc)
 func NewWithElement[V constraints.Ordered](key V, value any) *Tree[V] {
+	nilNode := &node[V]{
+		color: black,
+	}
+
 	return &Tree[V]{
 		root: &node[V]{
 			element: element[V]{
 				key:   key,
 				value: value,
 			},
-			color: black,
+			color:  black,
+			left:   nilNode,
+			right:  nilNode,
+			parent: nilNode,
 		},
+		nilNode: nilNode,
 	}
 }
 
@@ -39,10 +55,13 @@ func (t *Tree[V]) Insert(key V, value any) {
 		key:   key,
 		value: value,
 	},
-		color: red,
+		color:  red,
+		left:   t.nilNode,
+		right:  t.nilNode,
+		parent: t.nilNode,
 	}
 
-	if t.root == nil {
+	if t.root == t.nilNode {
 		t.root = newNode
 		t.insertFixup(newNode)
 
@@ -52,7 +71,7 @@ func (t *Tree[V]) Insert(key V, value any) {
 	current := t.root
 	for {
 		if key < current.element.key {
-			if current.left == nil {
+			if current.left == t.nilNode {
 				current.left = newNode
 				newNode.parent = current
 				break
@@ -61,7 +80,7 @@ func (t *Tree[V]) Insert(key V, value any) {
 			continue
 		}
 
-		if current.right == nil {
+		if current.right == t.nilNode {
 			current.right = newNode
 			newNode.parent = current
 			break
@@ -73,13 +92,12 @@ func (t *Tree[V]) Insert(key V, value any) {
 
 // Min is a function for searching min element in tree (by key).
 func (t *Tree[V]) Min() V {
-	var result V
 	n := t.root
-	if n == nil {
-		return result
+	if n == t.nilNode {
+		return t.nilNode.element.key
 	}
 
-	for n.left != nil {
+	for n.left != t.nilNode {
 		n = n.left
 	}
 
@@ -88,13 +106,12 @@ func (t *Tree[V]) Min() V {
 
 // Max is a function for searching max element in tree (by key).
 func (t *Tree[V]) Max() V {
-	var result V
 	n := t.root
-	if n == nil {
-		return result
+	if n == t.nilNode {
+		return t.nilNode.element.key
 	}
 
-	for n.right != nil {
+	for n.right != t.nilNode {
 		n = n.right
 	}
 
@@ -104,12 +121,7 @@ func (t *Tree[V]) Max() V {
 // Exists is a function for searching element in node. If element exists in tree - return true, else - false
 // - param key should be `ordered type` (`int`, `string`, `float` etc)
 func (t *Tree[V]) Exists(key V) bool {
-	searchNode := search(t.root, key)
-	if searchNode == nil {
-		return false
-	}
-
-	return true
+	return search(t.root, key) != nil
 }
 
 // GetValue is a function for searching element in node and returning value of this element
@@ -146,20 +158,20 @@ func (t *Tree[V]) Delete(key V) {
 
 // leftRotate - internal function for left rotating in rbtree
 func (t *Tree[V]) leftRotate(x *node[V]) {
-	if x == nil || x.right == nil {
+	if x == t.nilNode || x.right == t.nilNode {
 		return
 	}
 
 	y := x.right
 	x.right = y.left
 
-	if y.left != nil {
+	if y.left != t.nilNode {
 		y.left.parent = x
 	}
 
 	y.parent = x.parent
 	switch {
-	case x.parent == nil:
+	case x.parent == t.nilNode:
 		t.root = y
 	case x == x.parent.left:
 		x.parent.left = y
@@ -173,21 +185,21 @@ func (t *Tree[V]) leftRotate(x *node[V]) {
 
 // rightRotate - internal function for right rotating in rbtree
 func (t *Tree[V]) rightRotate(y *node[V]) {
-	if y == nil || y.left == nil {
+	if y == t.nilNode || y.left == t.nilNode {
 		return
 	}
 
 	x := y.left
 	y.left = x.right
 
-	if x.right != nil {
+	if x.right != t.nilNode {
 		x.right.parent = y
 	}
 
 	x.parent = y.parent
 
 	switch {
-	case y.parent == nil:
+	case y.parent == t.nilNode:
 		t.root = x
 	case y == y.parent.right:
 		y.parent.right = x
@@ -201,10 +213,10 @@ func (t *Tree[V]) rightRotate(y *node[V]) {
 
 // insertFixup function calls after insert node to rbtree for recovery of rbtree's properties
 func (t *Tree[V]) insertFixup(z *node[V]) {
-	for z.parent != nil && z.parent.color == red {
+	for z.parent != t.nilNode && z.parent.color == red {
 		if z.parent == z.parent.parent.left {
 			y := z.parent.parent.right
-			if y != nil && y.color == red {
+			if y != t.nilNode && y.color == red {
 				z.parent.color = black
 				y.color = black
 				z.parent.parent.color = red
@@ -222,7 +234,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 		}
 
 		y := z.parent.parent.left
-		if y != nil && y.color == red {
+		if y != t.nilNode && y.color == red {
 			z.parent.color = black
 			y.color = black
 			z.parent.parent.color = red

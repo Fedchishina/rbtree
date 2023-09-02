@@ -7,14 +7,21 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-func TestNew(t *testing.T) {
+func TestTree_New(t *testing.T) {
 	type testCase[V constraints.Ordered] struct {
 		name string
 		want *Tree[V]
 	}
+	nilNodeInt := &node[int]{
+		color: black,
+	}
+
 	testInt := testCase[int]{
 		name: "int empty tree",
-		want: &Tree[int]{root: nil},
+		want: &Tree[int]{
+			root:    nilNodeInt,
+			nilNode: nilNodeInt,
+		},
 	}
 	t.Run(testInt.name, func(t *testing.T) {
 		if got := New[int](); !reflect.DeepEqual(got, testInt.want) {
@@ -22,9 +29,15 @@ func TestNew(t *testing.T) {
 		}
 	})
 
+	nilNodeStr := &node[string]{
+		color: black,
+	}
 	testString := testCase[string]{
-		name: "int empty tree",
-		want: &Tree[string]{root: nil},
+		name: "string empty tree",
+		want: &Tree[string]{
+			root:    nilNodeStr,
+			nilNode: nilNodeStr,
+		},
 	}
 	t.Run(testString.name, func(t *testing.T) {
 		if got := New[int](); !reflect.DeepEqual(got, testInt.want) {
@@ -33,7 +46,7 @@ func TestNew(t *testing.T) {
 	})
 }
 
-func TestNewWithElement(t *testing.T) {
+func TestTree_NewWithElement(t *testing.T) {
 	type args[V constraints.Ordered] struct {
 		key   V
 		value any
@@ -42,6 +55,10 @@ func TestNewWithElement(t *testing.T) {
 		name string
 		args args[V]
 		want *Tree[V]
+	}
+
+	nilNodeInt := &node[int]{
+		color: black,
 	}
 
 	intTests := []testCase[int]{
@@ -54,14 +71,30 @@ func TestNewWithElement(t *testing.T) {
 						key:   1,
 						value: nil,
 					},
-					color: black,
+					color:  black,
+					left:   nilNodeInt,
+					right:  nilNodeInt,
+					parent: nilNodeInt,
 				},
+				nilNode: nilNodeInt,
 			},
 		},
 		{
 			name: "one element",
 			args: args[int]{key: 15, value: 15},
-			want: getTree([]int{15}),
+			want: &Tree[int]{
+				root: &node[int]{
+					element: element[int]{
+						key:   15,
+						value: 15,
+					},
+					color:  black,
+					left:   nilNodeInt,
+					right:  nilNodeInt,
+					parent: nilNodeInt,
+				},
+				nilNode: nilNodeInt,
+			},
 		},
 	}
 	for _, tt := range intTests {
@@ -76,35 +109,24 @@ func TestNewWithElement(t *testing.T) {
 func TestTree_Min(t1 *testing.T) {
 	type testCase[V constraints.Ordered] struct {
 		name string
-		t    Tree[V]
+		t    *Tree[V]
 		want V
 	}
-
-	treeWithOneElement := New[int]()
-	treeWithOneElement.Insert(15, 15)
-	treeWithOneElement.Insert(25, 25)
 
 	tests := []testCase[int]{
 		{
 			name: "empty tree",
-			t:    Tree[int]{root: nil},
+			t:    getTree([]int{}),
 			want: 0,
 		},
 		{
 			name: "tree with one element",
-			t: Tree[int]{
-				root: &node[int]{
-					element: element[int]{
-						key:   15,
-						value: 15,
-					},
-				},
-			},
+			t:    getTree([]int{15}),
 			want: 15,
 		},
 		{
 			name: "tree with root and one element",
-			t:    *treeWithOneElement,
+			t:    getTree([]int{15, 25}),
 			want: 15,
 		},
 	}
@@ -120,35 +142,24 @@ func TestTree_Min(t1 *testing.T) {
 func TestTree_Max(t1 *testing.T) {
 	type testCase[V constraints.Ordered] struct {
 		name string
-		t    Tree[V]
+		t    *Tree[V]
 		want V
 	}
-
-	treeWithOneElement := New[int]()
-	treeWithOneElement.Insert(15, 15)
-	treeWithOneElement.Insert(25, 25)
 
 	tests := []testCase[int]{
 		{
 			name: "empty tree",
-			t:    Tree[int]{root: nil},
+			t:    getTree([]int{}),
 			want: 0,
 		},
 		{
 			name: "tree with one element",
-			t: Tree[int]{
-				root: &node[int]{
-					element: element[int]{
-						key:   15,
-						value: 15,
-					},
-				},
-			},
+			t:    getTree([]int{15}),
 			want: 15,
 		},
 		{
 			name: "tree with root and one element",
-			t:    *treeWithOneElement,
+			t:    getTree([]int{15, 25}),
 			want: 25,
 		},
 	}
@@ -167,56 +178,39 @@ func TestTree_Exist(t1 *testing.T) {
 	}
 	type testCase[V constraints.Ordered] struct {
 		name string
-		t    Tree[V]
+		t    *Tree[V]
 		args args[V]
 		want bool
 	}
-	treeWithOneElement := New[int]()
-	treeWithOneElement.Insert(15, 15)
-	treeWithOneElement.Insert(25, 25)
 
 	tests := []testCase[int]{
 		{
 			name: "empty tree",
-			t:    Tree[int]{root: nil},
+			t:    getTree([]int{}),
 			args: args[int]{key: 1},
 			want: false,
 		},
 		{
 			name: "tree with one element - not found",
-			t: Tree[int]{
-				root: &node[int]{
-					element: element[int]{
-						key:   15,
-						value: 15,
-					},
-				},
-			},
+			t:    getTree([]int{15}),
 			args: args[int]{key: 1},
 			want: false,
 		},
 		{
 			name: "tree with one element - found",
-			t: Tree[int]{
-				root: &node[int]{
-					element: element[int]{
-						key:   15,
-						value: 15,
-					},
-				},
-			},
+			t:    getTree([]int{15}),
 			args: args[int]{key: 15},
 			want: true,
 		},
 		{
 			name: "tree with root and one element - found",
-			t:    *treeWithOneElement,
+			t:    getTree([]int{15, 25}),
 			args: args[int]{key: 25},
 			want: true,
 		},
 		{
 			name: "tree with root and one element - not found",
-			t:    *treeWithOneElement,
+			t:    getTree([]int{15, 25}),
 			args: args[int]{key: 35},
 			want: false,
 		},
@@ -237,61 +231,44 @@ func TestTree_GetValue(t1 *testing.T) {
 	}
 	type testCase[V constraints.Ordered] struct {
 		name    string
-		t       Tree[V]
+		t       *Tree[V]
 		args    args[V]
 		want    any
 		wantErr bool
 	}
-	treeWithOneElement := New[int]()
-	treeWithOneElement.Insert(15, 15)
-	treeWithOneElement.Insert(25, 25)
 
 	tests := []testCase[int]{
 		{
 			name:    "empty tree",
-			t:       Tree[int]{root: nil},
+			t:       getTree([]int{}),
 			args:    args[int]{key: 1},
 			want:    nil,
 			wantErr: true,
 		},
 		{
-			name: "tree with one element - not found",
-			t: Tree[int]{
-				root: &node[int]{
-					element: element[int]{
-						key:   15,
-						value: 15,
-					},
-				},
-			},
+			name:    "tree with one element - not found",
+			t:       getTree([]int{}),
 			args:    args[int]{key: 1},
 			want:    nil,
 			wantErr: true,
 		},
 		{
-			name: "tree with one element - found",
-			t: Tree[int]{
-				root: &node[int]{
-					element: element[int]{
-						key:   15,
-						value: 15,
-					},
-				},
-			},
+			name:    "tree with one element - found",
+			t:       getTree([]int{15}),
 			args:    args[int]{key: 15},
 			want:    15,
 			wantErr: false,
 		},
 		{
 			name:    "tree with root and one element - found",
-			t:       *treeWithOneElement,
+			t:       getTree([]int{15, 25}),
 			args:    args[int]{key: 25},
 			want:    25,
 			wantErr: false,
 		},
 		{
 			name:    "tree with root and one element - not found",
-			t:       *treeWithOneElement,
+			t:       getTree([]int{15, 25}),
 			args:    args[int]{key: 35},
 			want:    nil,
 			wantErr: true,
@@ -323,31 +300,60 @@ func TestTree_Insert(t1 *testing.T) {
 		want *Tree[V]
 	}
 
-	treeWithOneElement := Tree[int]{
+	tree := New[int]()
+
+	treeWithOneRightElement := Tree[int]{
 		root: &node[int]{
 			element: element[int]{
 				key:   15,
 				value: 15,
 			},
-			parent: nil,
-			left:   nil,
+			parent: tree.nilNode,
+			left:   tree.nilNode,
 			right: &node[int]{
 				element: element[int]{
 					key:   25,
 					value: 25,
 				},
-				parent: nil,
+				parent: tree.nilNode,
 				color:  red,
+				left:   tree.nilNode,
+				right:  tree.nilNode,
 			},
 			color: black,
 		},
+		nilNode: tree.nilNode,
 	}
-	treeWithOneElement.root.right.parent = treeWithOneElement.root
+	treeWithOneRightElement.root.right.parent = treeWithOneRightElement.root
+
+	treeWithOneLeftElement := Tree[int]{
+		root: &node[int]{
+			element: element[int]{
+				key:   15,
+				value: 15,
+			},
+			parent: tree.nilNode,
+			left: &node[int]{
+				element: element[int]{
+					key:   10,
+					value: 10,
+				},
+				parent: tree.nilNode,
+				color:  red,
+				left:   tree.nilNode,
+				right:  tree.nilNode,
+			},
+			right: tree.nilNode,
+			color: black,
+		},
+		nilNode: tree.nilNode,
+	}
+	treeWithOneLeftElement.root.left.parent = treeWithOneLeftElement.root
 
 	tests := []testCase[int]{
 		{
 			name: "case 1: insert root",
-			t:    &Tree[int]{},
+			t:    tree,
 			args: args[int]{key: 15, value: 15},
 			want: &Tree[int]{
 				root: &node[int]{
@@ -355,21 +361,31 @@ func TestTree_Insert(t1 *testing.T) {
 						key:   15,
 						value: 15,
 					},
-					color: black,
+					color:  black,
+					left:   tree.nilNode,
+					right:  tree.nilNode,
+					parent: tree.nilNode,
 				},
+				nilNode: tree.nilNode,
 			},
 		},
 		{
-			name: "case 2 - insert node to black root",
+			name: "case 2 - insert right node to black root",
 			t:    getTree([]int{15}),
 			args: args[int]{key: 25, value: 25},
-			want: &treeWithOneElement,
+			want: &treeWithOneRightElement,
+		},
+		{
+			name: "case 2 - insert left node to black root",
+			t:    getTree([]int{15}),
+			args: args[int]{key: 10, value: 10},
+			want: &treeWithOneLeftElement,
 		},
 	}
 	for _, tt := range tests {
 		t1.Run(tt.name, func(t1 *testing.T) {
 			tt.t.Insert(tt.args.key, tt.args.value)
-			if !reflect.DeepEqual(tt.t, tt.want) {
+			if !treeEquals(tt.t, tt.want) {
 				t1.Errorf("Insert() = %#+v, want %#+v", tt.t, tt.want)
 			}
 		})
@@ -395,7 +411,7 @@ func TestTree_Insert_case_2(t1 *testing.T) {
 	checkNodeProperties(t1, t.root.right, 18, black, "t.root.right")
 	checkNodeProperties(t1, t.root.left.left, 8, black, "t.root.left.left")
 	checkNodeProperties(t1, t.root.left.right, 10, black, "t.root.left.right")
-	checkNodeProperties(t1, t.root.left.left.right, 7, red, "t.root.left.left")
+	checkNodeProperties(t1, t.root.left.left.left, 7, red, "t.root.left.left")
 }
 
 func TestTree_Insert_case_3(t1 *testing.T) {
@@ -637,4 +653,23 @@ func getTree(elements []int) *Tree[int] {
 	}
 
 	return tree
+}
+
+func treeEquals(tree1, tree2 *Tree[int]) bool {
+	return nodesEquals(tree1.root, tree2.root)
+}
+
+func nodesEquals(node1, node2 *node[int]) bool {
+	if node1 == nil && node2 == nil {
+		return true
+	}
+	if node1 == nil || node2 == nil {
+		return false
+	}
+
+	return node1.element.key == node2.element.key &&
+		node1.element.value == node2.element.value &&
+		node1.color == node2.color &&
+		nodesEquals(node1.left, node2.left) &&
+		nodesEquals(node1.right, node2.right)
 }
