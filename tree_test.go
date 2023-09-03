@@ -769,8 +769,8 @@ func checkNode[V constraints.Ordered](t *testing.T, vn *validNode[V]) {
 
 	if vn.node.color != vn.color {
 		t.Errorf("Error - Want color: %v, have color: %v in %s\n",
-			vn.color,
-			vn.node.color,
+			colorToString(vn.color),
+			colorToString(vn.node.color),
 			vn.nodePath,
 		)
 	}
@@ -808,4 +808,15 @@ func nodesEquals(node1, node2 *node[int]) bool {
 		node1.color == node2.color &&
 		nodesEquals(node1.left, node2.left) &&
 		nodesEquals(node1.right, node2.right)
+}
+
+func colorToString(c color) string {
+	switch c {
+	case red:
+		return "red"
+	case black:
+		return "black"
+	default:
+		return "unknown"
+	}
 }
