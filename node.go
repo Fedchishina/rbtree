@@ -2,11 +2,11 @@ package rbtree
 
 import "golang.org/x/exp/constraints"
 
-type color bool
+type color int
 
 const (
-	red   color = true
-	black color = false
+	red color = iota
+	black
 )
 
 // node is the structure of tree's node.
