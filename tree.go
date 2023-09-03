@@ -145,7 +145,7 @@ func (t *Tree[V]) Delete(key V) {
 	}
 
 	if t.root.hasNoChildren() {
-		t.root = nil
+		t.root = t.nilNode
 		return
 	}
 
@@ -255,28 +255,21 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 
 // transplant - internal function for substitution u node to v node
 func (t *Tree[V]) transplant(u, v *node[V]) {
-	if u.parent == nil {
+	if u.parent == t.nilNode {
 		t.root = v
-		if v != nil {
-			v.parent = nil
-		}
-
+		v.parent = u.parent
 		return
 	}
 
 	if u == u.parent.left {
 		u.parent.left = v
-		if v != nil {
-			v.parent = u.parent
-		}
+		v.parent = u.parent
 
 		return
 	}
 
 	u.parent.right = v
-	if v != nil {
-		v.parent = u.parent
-	}
+	v.parent = u.parent
 }
 
 // deleteNode - internal function for deleting node in rbtree
@@ -286,29 +279,29 @@ func (t *Tree[V]) deleteNode(z *node[V]) (color, *node[V]) {
 	yOriginalColor = y.color
 
 	var x *node[V]
-	if z.left == nil {
+	if z.left == t.nilNode {
 		x = z.right
 		t.transplant(z, z.right)
 		return yOriginalColor, x
 	}
 
-	if z.right == nil {
+	if z.right == t.nilNode {
 		x = z.left
 		t.transplant(z, z.left)
 		return yOriginalColor, x
 	}
 
-	y = z.right.min()
+	y = t.min(z.right)
 	yOriginalColor = y.color
 	x = y.right
 	z.element = y.element
 
 	if y.parent == z {
-		y.parent.right = nil
+		y.parent.right = t.nilNode
 	} else {
-		y.parent.left = nil
+		y.parent.left = t.nilNode
 	}
-	y.parent = nil
+	y.parent = t.nilNode
 
 	return yOriginalColor, x
 }
@@ -365,4 +358,12 @@ func (t *Tree[V]) deleteFixup(x *node[V]) {
 		x = t.root
 	}
 	x.color = black
+}
+
+func (t *Tree[V]) min(n *node[V]) *node[V] {
+	for n.left != t.nilNode {
+		n = n.left
+	}
+
+	return n
 }

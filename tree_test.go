@@ -7,6 +7,13 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+type validNode[V constraints.Ordered] struct {
+	node     *node[V]
+	key      V
+	color    color
+	nodePath string
+}
+
 func TestTree_New(t *testing.T) {
 	type testCase[V constraints.Ordered] struct {
 		name string
@@ -396,117 +403,207 @@ func TestTree_Insert_case_2(t1 *testing.T) {
 	t := getTree([]int{11, 9, 18, 8, 10})
 
 	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t.root, 11, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 9, black, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 18, black, "t.root.right")
-	checkNodeProperties(t1, t.root.left.left, 8, red, "t.root.left.left")
-	checkNodeProperties(t1, t.root.left.right, 10, red, "t.root.left.right")
+	validTree := []validNode[int]{
+		{node: t.root, key: 11, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 9, color: black, nodePath: "t.root.left"},
+		{node: t.root.right, key: 18, color: black, nodePath: "t.root.right"},
+		{node: t.root.left.left, key: 8, color: red, nodePath: "t.root.left.left"},
+		{node: t.root.left.right, key: 10, color: red, nodePath: "t.root.left.right"},
+	}
+	for _, n := range validTree {
+		checkNode(t1, &n)
+	}
 
 	// add list
 	t.Insert(7, 7)
 
 	// check tree's structure and colours after insert
-	checkNodeProperties(t1, t.root, 11, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 9, red, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 18, black, "t.root.right")
-	checkNodeProperties(t1, t.root.left.left, 8, black, "t.root.left.left")
-	checkNodeProperties(t1, t.root.left.right, 10, black, "t.root.left.right")
-	checkNodeProperties(t1, t.root.left.left.left, 7, red, "t.root.left.left")
+	validTreeAfterInsert := []validNode[int]{
+		{node: t.root, key: 11, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 9, color: red, nodePath: "t.root.left"},
+		{node: t.root.right, key: 18, color: black, nodePath: "t.root.right"},
+		{node: t.root.left.left, key: 8, color: black, nodePath: "t.root.left.left"},
+		{node: t.root.left.right, key: 10, color: black, nodePath: "t.root.left.right"},
+		{node: t.root.left.left.left, key: 7, color: red, nodePath: "t.root.left.right"},
+	}
+	for _, n := range validTreeAfterInsert {
+		checkNode(t1, &n)
+	}
 }
 
 func TestTree_Insert_case_3(t1 *testing.T) {
 	t := getTree([]int{5, 3, 6})
 
 	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t.root, 5, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 3, red, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 6, red, "t.root.right")
+	validTree := []validNode[int]{
+		{node: t.root, key: 5, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 3, color: red, nodePath: "t.root.left"},
+		{node: t.root.right, key: 6, color: red, nodePath: "t.root.right"},
+	}
+
+	for _, n := range validTree {
+		checkNode(t1, &n)
+	}
 
 	// add list
 	t.Insert(2, 2)
 
 	// check tree's structure and colours after insert
-	checkNodeProperties(t1, t.root, 5, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 3, black, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 6, black, "t.root.right")
-	checkNodeProperties(t1, t.root.left.left, 2, red, "t.root.left")
+	validTreeAfterInsert := []validNode[int]{
+		{node: t.root, key: 5, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 3, color: black, nodePath: "t.root.left"},
+		{node: t.root.right, key: 6, color: black, nodePath: "t.root.right"},
+		{node: t.root.left.left, key: 2, color: red, nodePath: "t.root.left.left"},
+	}
 
-	t2 := getTree([]int{5, 3, 6})
-
-	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t2.root, 5, black, "t.root")
-	checkNodeProperties(t1, t2.root.left, 3, red, "t.root.left")
-	checkNodeProperties(t1, t2.root.right, 6, red, "t.root.right")
-
-	// add list
-	t2.Insert(4, 4)
-
-	// check tree's structure and colours after insert
-	checkNodeProperties(t1, t2.root, 5, black, "t.root")
-	checkNodeProperties(t1, t2.root.left, 3, black, "t.root.left")
-	checkNodeProperties(t1, t2.root.right, 6, black, "t.root.right")
-	checkNodeProperties(t1, t2.root.left.right, 4, red, "t.root.left")
+	for _, n := range validTreeAfterInsert {
+		checkNode(t1, &n)
+	}
 }
 
 func TestTree_Insert_case_4_left_rotate(t1 *testing.T) {
 	t := getTree([]int{8, 6})
 
+	validTree := []validNode[int]{
+		{node: t.root, key: 8, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 6, color: red, nodePath: "t.root.left"},
+	}
+
 	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t.root, 8, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 6, red, "t.root.left")
+	for _, n := range validTree {
+		checkNode(t1, &n)
+	}
 
 	// add list
 	t.Insert(7, 7)
 
 	// check tree's structure and colours after insert
-	checkNodeProperties(t1, t.root, 7, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 6, red, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 8, red, "t.root.right")
+	validTreeAfterInsert := []validNode[int]{
+		{node: t.root, key: 7, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 6, color: red, nodePath: "t.root.left"},
+		{node: t.root.right, key: 8, color: red, nodePath: "t.root.right"},
+	}
+
+	for _, n := range validTreeAfterInsert {
+		checkNode(t1, &n)
+	}
 }
 
 func TestTree_Insert_case_5_right_rotate(t1 *testing.T) {
 	t := getTree([]int{8, 7})
 
+	validTree := []validNode[int]{
+		{node: t.root, key: 8, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 7, color: red, nodePath: "t.root.left"},
+	}
+
 	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t.root, 8, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 7, red, "t.root.left")
+	for _, n := range validTree {
+		checkNode(t1, &n)
+	}
 
 	// add list
 	t.Insert(6, 6)
 
 	// check tree's structure and colours after insert
-	checkNodeProperties(t1, t.root, 7, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 6, red, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 8, red, "t.root.right")
+	validTreeAfterInsert := []validNode[int]{
+		{node: t.root, key: 7, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 6, color: red, nodePath: "t.root.left"},
+		{node: t.root.right, key: 8, color: red, nodePath: "t.root.right"},
+	}
+	for _, n := range validTreeAfterInsert {
+		checkNode(t1, &n)
+	}
 }
 
 func TestTree_Insert_big_case(t1 *testing.T) {
 	t := getTree([]int{11, 2, 14, 1, 7, 15, 5, 8})
 
+	validTree := []validNode[int]{
+		{node: t.root, key: 11, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 2, color: red, nodePath: "t.root.left"},
+		{node: t.root.right, key: 14, color: black, nodePath: "t.root.right"},
+		{node: t.root.right.right, key: 15, color: red, nodePath: "t.root.right.right"},
+		{node: t.root.left.left, key: 1, color: black, nodePath: "t.root.left.left"},
+		{node: t.root.left.right, key: 7, color: black, nodePath: "t.root.left.right"},
+		{node: t.root.left.right.left, key: 5, color: red, nodePath: "t.root.left.right.left"},
+		{node: t.root.left.right.right, key: 8, color: red, nodePath: "t.root.left.right.right"},
+	}
+
 	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t.root, 11, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 2, red, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 14, black, "t.root.right")
-	checkNodeProperties(t1, t.root.right.right, 15, red, "t.root.right.right")
-	checkNodeProperties(t1, t.root.left.left, 1, black, "t.root.left.left")
-	checkNodeProperties(t1, t.root.left.right, 7, black, "t.root.left.right")
-	checkNodeProperties(t1, t.root.left.right.left, 5, red, "t.root.left.right.left")
-	checkNodeProperties(t1, t.root.left.right.right, 8, red, "t.root.left.right.right")
+	for _, n := range validTree {
+		checkNode(t1, &n)
+	}
 
 	// add list
 	t.Insert(4, 4)
 
 	// check tree's structure and colours after insert
-	checkNodeProperties(t1, t.root, 7, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 2, red, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 11, red, "t.root.right")
-	checkNodeProperties(t1, t.root.left.left, 1, black, "t.root.left.left")
-	checkNodeProperties(t1, t.root.left.right, 5, black, "t.root.left.right")
-	checkNodeProperties(t1, t.root.right.left, 8, black, "t.root.right.left")
-	checkNodeProperties(t1, t.root.right.right, 14, black, "t.root.right.right")
-	checkNodeProperties(t1, t.root.right.right.right, 15, red, "t.root.right.right.right ")
-	checkNodeProperties(t1, t.root.left.right.left, 4, red, "t.root.left.right.left")
+	validTreeAfterInsert := []validNode[int]{
+		{node: t.root, key: 7, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 2, color: red, nodePath: "t.root.left"},
+		{node: t.root.right, key: 11, color: red, nodePath: "t.root.right"},
+		{node: t.root.left.left, key: 1, color: black, nodePath: "t.root.left.left"},
+		{node: t.root.left.right, key: 5, color: black, nodePath: "t.root.left.right"},
+		{node: t.root.right.left, key: 8, color: black, nodePath: "t.root.right.left"},
+		{node: t.root.right.right, key: 14, color: black, nodePath: "t.root.right.right"},
+		{node: t.root.right.right.right, key: 15, color: red, nodePath: "t.root.right.right.right"},
+		{node: t.root.left.right.left, key: 4, color: red, nodePath: "t.root.left.right.left"},
+	}
+
+	for _, n := range validTreeAfterInsert {
+		checkNode(t1, &n)
+	}
 }
+
+//func TestTree_Insert_Cases(t1 *testing.T) {
+//	type args[V constraints.Ordered] struct {
+//		key   V
+//		value V
+//	}
+//	type testCase[V constraints.Ordered] struct {
+//		name                 string
+//		t                    *Tree[V]
+//		args                 args[V]
+//		validTree            []validNode[int]
+//		validTreeAfterInsert []validNode[int]
+//	}
+//
+//	treeCase2 := getTree([]int{11, 9, 18, 8, 10})
+//	tests := []testCase[int]{
+//		{
+//			name: "case 2",
+//			t:    treeCase2,
+//			args: args[int]{key: 7, value: 7},
+//			validTree: []validNode[int]{
+//				{node: treeCase2.root, key: 11, color: black, nodePath: "t.root"},
+//				{node: treeCase2.root.left, key: 9, color: black, nodePath: "t.root.left"},
+//				{node: treeCase2.root.right, key: 18, color: black, nodePath: "t.root.right"},
+//				{node: treeCase2.root.left.left, key: 8, color: red, nodePath: "t.root.left.left"},
+//				{node: treeCase2.root.left.right, key: 10, color: red, nodePath: "t.root.left.right"},
+//			},
+//			validTreeAfterInsert: []validNode[int]{
+//				{node: treeCase2.root, key: 11, color: black, nodePath: "t.root"},
+//				{node: treeCase2.root.left, key: 9, color: red, nodePath: "t.root.left"},
+//				{node: treeCase2.root.right, key: 18, color: black, nodePath: "t.root.right"},
+//				{node: treeCase2.root.left.left, key: 8, color: black, nodePath: "t.root.left.left"},
+//				{node: treeCase2.root.left.right, key: 10, color: black, nodePath: "t.root.left.right"},
+//				{node: treeCase2.root.left.left.left, key: 7, color: red, nodePath: "t.root.left.right"},
+//			},
+//		},
+//	}
+//	for _, tt := range tests {
+//		t1.Run(tt.name, func(t1 *testing.T) {
+//			for _, n := range tt.validTree {
+//				checkNode(t1, &n)
+//			}
+//			tt.t.Insert(tt.args.key, tt.args.value)
+//			for _, n := range tt.validTreeAfterInsert {
+//				checkNode(t1, &n)
+//			}
+//		})
+//	}
+//}
 
 func TestTree_Delete(t1 *testing.T) {
 	type args[V constraints.Ordered] struct {
@@ -522,9 +619,9 @@ func TestTree_Delete(t1 *testing.T) {
 	tests := []testCase[int]{
 		{
 			name: "empty tree",
-			t:    &Tree[int]{},
+			t:    getTree([]int{}),
 			args: args[int]{key: 1},
-			want: &Tree[int]{},
+			want: getTree([]int{}),
 		},
 		{
 			name: "tree only with root - without changes",
@@ -536,7 +633,7 @@ func TestTree_Delete(t1 *testing.T) {
 			name: "tree only with root - delete root",
 			t:    getTree([]int{15}),
 			args: args[int]{key: 15},
-			want: &Tree[int]{},
+			want: getTree([]int{}),
 		},
 		{
 			name: "tree with elements - without changes",
@@ -560,7 +657,7 @@ func TestTree_Delete(t1 *testing.T) {
 	for _, tt := range tests {
 		t1.Run(tt.name, func(t1 *testing.T) {
 			tt.t.Delete(tt.args.key)
-			if !reflect.DeepEqual(tt.t, tt.want) {
+			if !treeEquals(tt.t, tt.want) {
 				t1.Errorf("Delete() = %v, want %v", tt.t, tt.want)
 			}
 		})
@@ -570,79 +667,118 @@ func TestTree_Delete(t1 *testing.T) {
 func TestTree_Delete_case_1_delete_red_list(t1 *testing.T) {
 	t := getTree([]int{10, 7, 11, 8})
 
+	validTree := []validNode[int]{
+		{node: t.root, key: 10, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 7, color: black, nodePath: "t.root.left"},
+		{node: t.root.right, key: 11, color: black, nodePath: "t.root.right"},
+		{node: t.root.left.right, key: 8, color: red, nodePath: "t.root.left.right"},
+	}
+
 	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t.root, 10, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 7, black, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 11, black, "t.root.right")
-	checkNodeProperties(t1, t.root.left.right, 8, red, "t.root.left.right")
+	for _, n := range validTree {
+		checkNode(t1, &n)
+	}
 
 	// delete list
 	t.Delete(8)
 
-	// check tree's structure and colours after deleting
-	checkNodeProperties(t1, t.root, 10, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 7, black, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 11, black, "t.root.right")
-	checkNodeIsNil(t1, t.root.left.right, "t.root.left.right")
+	// check tree's structure and colours after insert
+	validTreeAfterInsert := []validNode[int]{
+		{node: t.root, key: 10, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 7, color: black, nodePath: "t.root.left"},
+		{node: t.root.right, key: 11, color: black, nodePath: "t.root.right"},
+	}
+	for _, n := range validTreeAfterInsert {
+		checkNode(t1, &n)
+	}
+	checkNodeIsNilNode(t1, t.nilNode, t.root.left.right, "t.root.left.right")
 }
 
 func TestTree_Delete_case_3_delete_black_node_with_one_red_child(t1 *testing.T) {
 	t := getTree([]int{10, 7, 11, 8})
 
+	validTree := []validNode[int]{
+		{node: t.root, key: 10, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 7, color: black, nodePath: "t.root.left"},
+		{node: t.root.right, key: 11, color: black, nodePath: "t.root.right"},
+		{node: t.root.left.right, key: 8, color: red, nodePath: "t.root.left.right"},
+	}
+
 	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t.root, 10, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 7, black, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 11, black, "t.root.right")
-	checkNodeProperties(t1, t.root.left.right, 8, red, "t.root.left.right")
+	for _, n := range validTree {
+		checkNode(t1, &n)
+	}
 
 	// delete list
 	t.Delete(7)
 
-	// check tree's structure and colours after deleting
-	checkNodeProperties(t1, t.root, 10, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 8, black, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 11, black, "t.root.right")
+	// check tree's structure and colours after insert
+	validTreeAfterInsert := []validNode[int]{
+		{node: t.root, key: 10, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 8, color: black, nodePath: "t.root.left"},
+		{node: t.root.right, key: 11, color: black, nodePath: "t.root.right"},
+	}
+	for _, n := range validTreeAfterInsert {
+		checkNode(t1, &n)
+	}
 }
 
 func TestTree_Delete_case_2(t1 *testing.T) {
 	t := getTree([]int{10, 8, 12, 11, 14})
 
+	validTree := []validNode[int]{
+		{node: t.root, key: 10, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 8, color: black, nodePath: "t.root.left"},
+		{node: t.root.right, key: 12, color: black, nodePath: "t.root.right"},
+		{node: t.root.right.left, key: 11, color: red, nodePath: "t.root.right.left"},
+		{node: t.root.right.right, key: 14, color: red, nodePath: "t.root.right.right"},
+	}
+
 	// check tree's structure and colours before insert
-	checkNodeProperties(t1, t.root, 10, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 8, black, "t.root.left")
-	checkNodeProperties(t1, t.root.right, 12, black, "t.root.right")
-	checkNodeProperties(t1, t.root.right.left, 11, red, "t.root.right.left")
-	checkNodeProperties(t1, t.root.right.right, 14, red, "t.root.right.right")
+	for _, n := range validTree {
+		checkNode(t1, &n)
+	}
 
 	// delete list
 	t.Delete(8)
 
-	// check tree's structure and colours after deleting
-	checkNodeProperties(t1, t.root, 12, black, "t.root")
-	checkNodeProperties(t1, t.root.left, 10, black, "t.root.left")
-	checkNodeProperties(t1, t.root.left.right, 11, red, "t.root.left.right")
-	checkNodeProperties(t1, t.root.right, 14, black, "t.root.right")
+	// check tree's structure and colours after insert
+	validTreeAfterInsert := []validNode[int]{
+		{node: t.root, key: 12, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 10, color: black, nodePath: "t.root.left"},
+		{node: t.root.left.right, key: 11, color: red, nodePath: "t.root.left.right"},
+		{node: t.root.right, key: 14, color: black, nodePath: "t.root.right"},
+	}
+	for _, n := range validTreeAfterInsert {
+		checkNode(t1, &n)
+	}
 }
 
-func checkNodeProperties(t *testing.T, node *node[int], key int, color color, nodePath string) {
-	if node == nil {
+func checkNode[V constraints.Ordered](t *testing.T, vn *validNode[V]) {
+	if vn == nil {
 		return
 	}
 
-	if node.element.key != key || node.color != color {
-		t.Errorf("Error - Want key: %v, have key %v. Want color: %v, have color: %v in %s\n",
-			key,
-			node.element.key,
-			color,
-			node.color,
-			nodePath,
+	if vn.node.element.key != vn.key {
+		t.Errorf("Error - Want key: %v, have key %v in %s\n",
+			vn.key,
+			vn.node.element.key,
+			vn.nodePath,
+		)
+	}
+
+	if vn.node.color != vn.color {
+		t.Errorf("Error - Want color: %v, have color: %v in %s\n",
+			vn.color,
+			vn.node.color,
+			vn.nodePath,
 		)
 	}
 }
 
-func checkNodeIsNil(t *testing.T, node *node[int], nodePath string) {
-	if node != nil {
-		t.Errorf("Error - Node is not null in %s\n", nodePath)
+func checkNodeIsNilNode(t *testing.T, nilNode, node *node[int], nodePath string) {
+	if node != nilNode {
+		t.Errorf("Error - Node is not nil node in %s\n", nodePath)
 	}
 }
 
