@@ -694,6 +694,37 @@ func TestTree_Delete_case_1_delete_red_list(t1 *testing.T) {
 	checkNodeIsNilNode(t1, t.nilNode, t.root.left.right, "t.root.left.right")
 }
 
+func TestTree_Delete_case_2_black_brother(t1 *testing.T) {
+	t := getTree([]int{10, 8, 12, 11, 14})
+
+	validTree := []validNode[int]{
+		{node: t.root, key: 10, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 8, color: black, nodePath: "t.root.left"},
+		{node: t.root.right, key: 12, color: black, nodePath: "t.root.right"},
+		{node: t.root.right.left, key: 11, color: red, nodePath: "t.root.right.left"},
+		{node: t.root.right.right, key: 14, color: red, nodePath: "t.root.right.right"},
+	}
+
+	// check tree's structure and colours before insert
+	for _, n := range validTree {
+		checkNode(t1, &n)
+	}
+
+	// delete list
+	t.Delete(8)
+
+	// check tree's structure and colours after insert
+	validTreeAfterInsert := []validNode[int]{
+		{node: t.root, key: 12, color: black, nodePath: "t.root"},
+		{node: t.root.left, key: 10, color: black, nodePath: "t.root.left"},
+		{node: t.root.left.right, key: 11, color: red, nodePath: "t.root.left.right"},
+		{node: t.root.right, key: 14, color: black, nodePath: "t.root.right"},
+	}
+	for _, n := range validTreeAfterInsert {
+		checkNode(t1, &n)
+	}
+}
+
 func TestTree_Delete_case_3_delete_black_node_with_one_red_child(t1 *testing.T) {
 	t := getTree([]int{10, 7, 11, 8})
 
@@ -723,15 +754,16 @@ func TestTree_Delete_case_3_delete_black_node_with_one_red_child(t1 *testing.T) 
 	}
 }
 
-func TestTree_Delete_case_2(t1 *testing.T) {
-	t := getTree([]int{10, 8, 12, 11, 14})
+func TestTree_Delete_case_4_delete_black_node_with_red_brother(t1 *testing.T) {
+	t := getTree([]int{10, 8, 12, 11, 14, 15})
 
 	validTree := []validNode[int]{
 		{node: t.root, key: 10, color: black, nodePath: "t.root"},
 		{node: t.root.left, key: 8, color: black, nodePath: "t.root.left"},
-		{node: t.root.right, key: 12, color: black, nodePath: "t.root.right"},
-		{node: t.root.right.left, key: 11, color: red, nodePath: "t.root.right.left"},
-		{node: t.root.right.right, key: 14, color: red, nodePath: "t.root.right.right"},
+		{node: t.root.right, key: 12, color: red, nodePath: "t.root.right"},
+		{node: t.root.right.left, key: 11, color: black, nodePath: "t.root.right.left"},
+		{node: t.root.right.right, key: 14, color: black, nodePath: "t.root.right.right"},
+		{node: t.root.right.right.right, key: 15, color: red, nodePath: "t.root.right.right"},
 	}
 
 	// check tree's structure and colours before insert
@@ -746,8 +778,9 @@ func TestTree_Delete_case_2(t1 *testing.T) {
 	validTreeAfterInsert := []validNode[int]{
 		{node: t.root, key: 12, color: black, nodePath: "t.root"},
 		{node: t.root.left, key: 10, color: black, nodePath: "t.root.left"},
-		{node: t.root.left.right, key: 11, color: red, nodePath: "t.root.left.right"},
 		{node: t.root.right, key: 14, color: black, nodePath: "t.root.right"},
+		{node: t.root.left.right, key: 11, color: red, nodePath: "t.root.right.left"},
+		{node: t.root.right.right, key: 15, color: red, nodePath: "t.root.right.right"},
 	}
 	for _, n := range validTreeAfterInsert {
 		checkNode(t1, &n)
