@@ -324,19 +324,19 @@ func (t *Tree[V]) deleteFixup(x *node[V]) {
 			if w.left.color == black && w.right.color == black {
 				w.color = red
 				x = x.parent
-			} else {
-				if w.right.color == black {
-					w.left.color = black
-					w.color = red
-					t.rightRotate(w)
-					w = x.parent.right
-				}
-				w.color = x.parent.color
-				x.parent.color = black
-				w.right.color = black
-				t.leftRotate(x.parent)
-				x = t.root
+				continue
 			}
+			if w.right.color == black {
+				w.left.color = black
+				w.color = red
+				t.rightRotate(w)
+				w = x.parent.right
+			}
+			w.color = x.parent.color
+			x.parent.color = black
+			w.right.color = black
+			t.leftRotate(x.parent)
+			x = t.root
 			continue
 		}
 
@@ -350,19 +350,19 @@ func (t *Tree[V]) deleteFixup(x *node[V]) {
 		if w.right.color == black && w.left.color == black {
 			w.color = red
 			x = x.parent
-		} else {
-			if w.left.color == black {
-				w.right.color = black
-				w.color = red
-				t.leftRotate(w)
-				w = x.parent.left
-			}
-			w.color = x.parent.color
-			x.parent.color = black
-			w.left.color = black
-			t.rightRotate(x.parent)
-			x = t.root
+			continue
 		}
+		if w.left.color == black {
+			w.right.color = black
+			w.color = red
+			t.leftRotate(w)
+			w = x.parent.left
+		}
+		w.color = x.parent.color
+		x.parent.color = black
+		w.left.color = black
+		t.rightRotate(x.parent)
+		x = t.root
 
 	}
 	x.color = black
