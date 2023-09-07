@@ -51,15 +51,7 @@ func NewWithElement[V constraints.Ordered](key V, value any) *Tree[V] {
 // - param key should be `ordered type` (`int`, `string`, `float` etc.)
 // - param value can be any type
 func (t *Tree[V]) Insert(key V, value any) {
-	newNode := &node[V]{element: element[V]{
-		key:   key,
-		value: value,
-	},
-		color:  red,
-		left:   t.nilNode,
-		right:  t.nilNode,
-		parent: t.nilNode,
-	}
+	newNode := t.getNewNode(key, value)
 
 	if t.root == t.nilNode {
 		t.root = newNode
@@ -367,4 +359,16 @@ func (t *Tree[V]) min(n *node[V]) *node[V] {
 	}
 
 	return n
+}
+
+func (t *Tree[V]) getNewNode(key V, value any) *node[V] {
+	return &node[V]{element: element[V]{
+		key:   key,
+		value: value,
+	},
+		color:  red,
+		left:   t.nilNode,
+		right:  t.nilNode,
+		parent: t.nilNode,
+	}
 }
