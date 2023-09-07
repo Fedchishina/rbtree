@@ -48,3 +48,14 @@ func isLeftChild[V constraints.Ordered](n *node[V]) bool {
 func isRightChild[V constraints.Ordered](n *node[V]) bool {
 	return n == n.parent.right
 }
+
+func recolorForFirstCase[V constraints.Ordered](y, z *node[V]) {
+	z.parent.color = black
+	y.color = black
+	z.parent.parent.color = red
+}
+
+func recolorForThirdCase[V constraints.Ordered](z *node[V]) {
+	z.parent.color = black
+	z.parent.parent.color = red
+}

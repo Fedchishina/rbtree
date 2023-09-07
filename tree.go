@@ -203,9 +203,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 		if isLeftChild(z.parent) {
 			y := z.parent.parent.right
 			if isRed(y) {
-				z.parent.color = black
-				y.color = black
-				z.parent.parent.color = red
+				recolorForFirstCase(y, z)
 				z = z.parent.parent
 				continue
 			}
@@ -213,17 +211,14 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 				z = z.parent
 				t.leftRotate(z)
 			}
-			z.parent.color = black
-			z.parent.parent.color = red
+			recolorForThirdCase(z)
 			t.rightRotate(z.parent.parent)
 			continue
 		}
 
 		y := z.parent.parent.left
 		if isRed(y) {
-			z.parent.color = black
-			y.color = black
-			z.parent.parent.color = red
+			recolorForFirstCase(y, z)
 			z = z.parent.parent
 			continue
 		}
@@ -232,8 +227,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 			z = z.parent
 			t.rightRotate(z)
 		}
-		z.parent.color = black
-		z.parent.parent.color = red
+		recolorForThirdCase(z)
 		t.leftRotate(z.parent.parent)
 	}
 	t.root.color = black
