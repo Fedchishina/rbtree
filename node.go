@@ -36,7 +36,3 @@ func search[V constraints.Ordered](n *node[V], key V) *node[V] {
 
 	return n
 }
-
-func (n *node[V]) hasNoChildren() bool {
-	return n.left == nil && n.right == nil
-}

@@ -143,12 +143,6 @@ func (t *Tree[V]) Delete(key V) {
 	if z == nil {
 		return
 	}
-
-	if t.root.hasNoChildren() {
-		t.root = t.nilNode
-		return
-	}
-
 	yOriginalColor, x := t.deleteNode(z)
 
 	if yOriginalColor == black {
@@ -257,7 +251,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 func (t *Tree[V]) transplant(u, v *node[V]) {
 	if u.parent == t.nilNode {
 		t.root = v
-		v.parent = u.parent
+		v.parent = t.nilNode
 		return
 	}
 
