@@ -151,17 +151,17 @@ func (t *Tree[V]) leftRotate(x *node[V]) {
 	y := x.right
 	x.right = y.left
 
-	if y.left != t.nilNode {
+	if t.hasLeftChild(y) {
 		y.left.parent = x
 	}
 
 	y.parent = x.parent
 	switch {
-	case x.parent == t.nilNode:
+	case t.isRoot(x):
 		t.root = y
-	case x == x.parent.left:
+	case isLeftChild(x):
 		x.parent.left = y
-	case x == x.parent.right:
+	case isRightChild(x):
 		x.parent.right = y
 	}
 
@@ -178,18 +178,18 @@ func (t *Tree[V]) rightRotate(y *node[V]) {
 	x := y.left
 	y.left = x.right
 
-	if x.right != t.nilNode {
+	if t.hasRightChild(x) {
 		x.right.parent = y
 	}
 
 	x.parent = y.parent
 
 	switch {
-	case y.parent == t.nilNode:
+	case t.isRoot(y):
 		t.root = x
-	case y == y.parent.right:
+	case isRightChild(y):
 		y.parent.right = x
-	case y == y.parent.left:
+	case isLeftChild(y):
 		y.parent.left = x
 	}
 
@@ -365,4 +365,16 @@ func (t *Tree[V]) getNewNode(key V, value any) *node[V] {
 		right:  t.nilNode,
 		parent: t.nilNode,
 	}
+}
+
+func (t *Tree[V]) isRoot(n *node[V]) bool {
+	return n.parent == t.nilNode
+}
+
+func (t *Tree[V]) hasLeftChild(n *node[V]) bool {
+	return n.left != t.nilNode
+}
+
+func (t *Tree[V]) hasRightChild(n *node[V]) bool {
+	return n.right != t.nilNode
 }
