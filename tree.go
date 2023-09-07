@@ -203,7 +203,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 		if isLeftChild(z.parent) {
 			y := z.parent.parent.right
 			if isRed(y) {
-				recolorForFirstCase(y, z)
+				recolorForFirstInsertCase(y, z)
 				z = z.parent.parent
 				continue
 			}
@@ -211,14 +211,14 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 				z = z.parent
 				t.leftRotate(z)
 			}
-			recolorForThirdCase(z)
+			recolorForThirdInsertCase(z)
 			t.rightRotate(z.parent.parent)
 			continue
 		}
 
 		y := z.parent.parent.left
 		if isRed(y) {
-			recolorForFirstCase(y, z)
+			recolorForFirstInsertCase(y, z)
 			z = z.parent.parent
 			continue
 		}
@@ -227,7 +227,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 			z = z.parent
 			t.rightRotate(z)
 		}
-		recolorForThirdCase(z)
+		recolorForThirdInsertCase(z)
 		t.leftRotate(z.parent.parent)
 	}
 	t.root.color = black
@@ -235,16 +235,15 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 
 // transplant - internal function for substitution u node to v node
 func (t *Tree[V]) transplant(u, v *node[V]) {
-	if u.parent == t.nilNode {
+	if t.isRoot(u) {
 		t.root = v
 		v.parent = t.nilNode
 		return
 	}
 
-	if u == u.parent.left {
+	if isLeftChild(u) {
 		u.parent.left = v
 		v.parent = u.parent
-
 		return
 	}
 
@@ -292,7 +291,7 @@ func (t *Tree[V]) deleteNode(z *node[V]) (color, *node[V]) {
 func (t *Tree[V]) deleteFixup(x *node[V]) {
 	var w *node[V]
 	for x != t.root && x.color == black {
-		if x == x.parent.left {
+		if isLeftChild(x) {
 			w = x.parent.right
 			if w.color == red {
 				w.color = black
