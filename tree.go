@@ -203,7 +203,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 		if isLeftChild(z.parent) {
 			y := z.parent.parent.right
 			if isRed(y) {
-				recolorForFirstInsertCase(y, z)
+				recolorForInsertCase1(y, z)
 				z = z.parent.parent
 				continue
 			}
@@ -211,14 +211,14 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 				z = z.parent
 				t.leftRotate(z)
 			}
-			recolorForThirdInsertCase(z)
+			recolorForInsertCase3(z)
 			t.rightRotate(z.parent.parent)
 			continue
 		}
 
 		y := z.parent.parent.left
 		if isRed(y) {
-			recolorForFirstInsertCase(y, z)
+			recolorForInsertCase1(y, z)
 			z = z.parent.parent
 			continue
 		}
@@ -227,7 +227,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 			z = z.parent
 			t.rightRotate(z)
 		}
-		recolorForThirdInsertCase(z)
+		recolorForInsertCase3(z)
 		t.leftRotate(z.parent.parent)
 	}
 	t.root.color = black
@@ -293,18 +293,18 @@ func (t *Tree[V]) deleteFixup(x *node[V]) {
 	for x != t.root && x.color == black {
 		if isLeftChild(x) {
 			w = x.parent.right
-			if w.color == red {
+			if isRed(w) {
 				w.color = black
 				x.parent.color = red
 				t.leftRotate(x.parent)
 				w = x.parent.right
 			}
-			if w.left.color == black && w.right.color == black {
+			if isBlack(w.left) && isBlack(w.right) {
 				w.color = red
 				x = x.parent
 				continue
 			}
-			if w.right.color == black {
+			if isBlack(w.right) {
 				w.left.color = black
 				w.color = red
 				t.rightRotate(w)
@@ -319,18 +319,18 @@ func (t *Tree[V]) deleteFixup(x *node[V]) {
 		}
 
 		w = x.parent.left
-		if w.color == red {
+		if isRed(w) {
 			w.color = black
 			x.parent.color = red
 			t.rightRotate(x.parent)
 			w = x.parent.left
 		}
-		if w.right.color == black && w.left.color == black {
+		if isBlack(w.left) && isBlack(w.right) {
 			w.color = red
 			x = x.parent
 			continue
 		}
-		if w.left.color == black {
+		if isBlack(w.left) {
 			w.right.color = black
 			w.color = red
 			t.leftRotate(w)

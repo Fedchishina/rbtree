@@ -40,6 +40,9 @@ func search[V constraints.Ordered](n *node[V], key V) *node[V] {
 func isRed[V constraints.Ordered](n *node[V]) bool {
 	return n.color == red
 }
+func isBlack[V constraints.Ordered](n *node[V]) bool {
+	return n.color == black
+}
 
 func isLeftChild[V constraints.Ordered](n *node[V]) bool {
 	return n == n.parent.left
@@ -49,13 +52,13 @@ func isRightChild[V constraints.Ordered](n *node[V]) bool {
 	return n == n.parent.right
 }
 
-func recolorForFirstInsertCase[V constraints.Ordered](y, z *node[V]) {
+func recolorForInsertCase1[V constraints.Ordered](y, z *node[V]) {
 	z.parent.color = black
 	y.color = black
 	z.parent.parent.color = red
 }
 
-func recolorForThirdInsertCase[V constraints.Ordered](z *node[V]) {
+func recolorForInsertCase3[V constraints.Ordered](z *node[V]) {
 	z.parent.color = black
 	z.parent.parent.color = red
 }
