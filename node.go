@@ -36,3 +36,15 @@ func search[V constraints.Ordered](n *node[V], key V) *node[V] {
 
 	return n
 }
+
+func isRed[V constraints.Ordered](n *node[V]) bool {
+	return n.color == red
+}
+
+func isLeftChild[V constraints.Ordered](n *node[V]) bool {
+	return n == n.parent.left
+}
+
+func isRightChild[V constraints.Ordered](n *node[V]) bool {
+	return n == n.parent.right
+}

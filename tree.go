@@ -200,16 +200,16 @@ func (t *Tree[V]) rightRotate(y *node[V]) {
 // insertFixup function calls after insert node to rbtree for recovery of rbtree's properties
 func (t *Tree[V]) insertFixup(z *node[V]) {
 	for z.parent != t.nilNode && z.parent.color == red {
-		if z.parent == z.parent.parent.left {
+		if isLeftChild(z.parent) {
 			y := z.parent.parent.right
-			if y != t.nilNode && y.color == red {
+			if isRed(y) {
 				z.parent.color = black
 				y.color = black
 				z.parent.parent.color = red
 				z = z.parent.parent
 				continue
 			}
-			if z == z.parent.right {
+			if isRightChild(z) {
 				z = z.parent
 				t.leftRotate(z)
 			}
@@ -220,7 +220,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 		}
 
 		y := z.parent.parent.left
-		if y != t.nilNode && y.color == red {
+		if isRed(y) {
 			z.parent.color = black
 			y.color = black
 			z.parent.parent.color = red
@@ -228,7 +228,7 @@ func (t *Tree[V]) insertFixup(z *node[V]) {
 			continue
 		}
 
-		if z == z.parent.left {
+		if isLeftChild(z) {
 			z = z.parent
 			t.rightRotate(z)
 		}
