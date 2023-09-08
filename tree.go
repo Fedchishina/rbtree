@@ -293,11 +293,8 @@ func (t *Tree[V]) deleteFixup(x *node[V]) {
 	for x != t.root && x.color == black {
 		if isLeftChild(x) {
 			w = x.parent.right
-			if isRed(w) {
-				w.color = black
-				x.parent.color = red
-				t.leftRotate(x.parent)
-				w = x.parent.right
+			if t.recolorAndRotateCase1(x.parent, w) {
+				continue
 			}
 			if isBlack(w.left) && isBlack(w.right) {
 				w.color = red
@@ -305,8 +302,8 @@ func (t *Tree[V]) deleteFixup(x *node[V]) {
 				continue
 			}
 			if isBlack(w.right) {
-				w.left.color = black
 				w.color = red
+				w.left.color = black
 				t.rightRotate(w)
 				w = x.parent.right
 			}
@@ -319,11 +316,8 @@ func (t *Tree[V]) deleteFixup(x *node[V]) {
 		}
 
 		w = x.parent.left
-		if isRed(w) {
-			w.color = black
-			x.parent.color = red
-			t.rightRotate(x.parent)
-			w = x.parent.left
+		if t.recolorAndRotateCase1(x.parent, w) {
+			continue
 		}
 		if isBlack(w.left) && isBlack(w.right) {
 			w.color = red
@@ -376,4 +370,18 @@ func (t *Tree[V]) hasLeftChild(n *node[V]) bool {
 
 func (t *Tree[V]) hasRightChild(n *node[V]) bool {
 	return n.right != t.nilNode
+}
+
+func (t *Tree[V]) recolorAndRotateCase1(parent, w *node[V]) bool {
+	if w.color == red {
+		w.color = black
+		parent.color = red
+		if isLeftChild(w) {
+			t.rightRotate(parent)
+			return true
+		}
+		t.leftRotate(parent)
+		return true
+	}
+	return false
 }
